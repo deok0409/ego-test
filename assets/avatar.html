@@ -456,37 +456,235 @@
       app.innerHTML = `<div class="card result"><span class="tag">MY EGO AVATAR · 1 / 16</span><div class="avatar"><img src="${avatarImageMap[key]}" alt="${r.name} 캐릭터"></div><div class="name">${r.name}</div><div class="catch">${r.catch}</div><div class="item">대표 아이템 · ${r.item}</div><div class="stats">${(() => { const t = calcTraits(); return statRow('표현력', t.expression) + statRow('방어력', t.defense) + statRow('독립성', t.independence) + statRow('계획성', t.planning) + statRow('공감성', t.empathy) + statRow('유연성', t.flexibility) })()}</div><div class="desc"><b>${r.name}의 특성</b><br><br>${r.tags.map(x => '• ' + x).join('<br>')}<br><br><b>당신을 이루는 네 방향</b><br>${expression} · ${energy}<br>${direction} · ${structure}</div><div class="bookrec"><span class="bookbadge">📚 당신의 아바타가 고른 3권</span><h3>이 캐릭터에게 추천하는 책 3권</h3>${bookData[key].map((b, n) => `<div style="background:#fff;border-radius:16px;padding:15px;margin-top:12px"><div style="font-size:12px;font-weight:900;color:#8a6bd2">BOOK ${n + 1}</div><div class="booktitle">『${b.title}』</div><div class="bookauthor">${b.author}</div><div class="bookwhy">${b.why}</div></div>`).join('')}</div><button class="retry" onclick="showApplication()">현장조사 신청하기</button></div>`
     }
 
-    let originalBodyContent = ''; // 원래 화면을 저장할 변수
+    // HTML 문자열 변수 (전과 동일)
+    const formHtmlContent = `<!doctype html>
+    <html lang="ko">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Übermensch 현장조사 신청서</title>
+      <style>
+        * { box-sizing: border-box; }
+        :root {
+          --g: #173f32; --g2: #245746; --soft: #edf3ef;
+          --bg: #f4f6f3; --ink: #1d2924; --muted: #6e7973; --line: #dce4df;
+        }
+        body { margin: 0; background: var(--bg); font-family: system-ui, -apple-system, "Noto Sans KR", sans-serif; color: var(--ink); }
+        .wrap { max-width: 760px; margin: auto; padding: 28px 16px 60px; }
+        header { background: linear-gradient(135deg, #153d31, #204c3d); color: white; border-radius: 24px; padding: 34px 32px; box-shadow: 0 15px 35px #173f3220; }
+        .brand { font-weight: 900; color: #c9dcd3; }
+        header h1 { font-size: 30px; margin: 8px 0 10px; }
+        header p { margin: 0; color: #d4e0da; font-size: 14px; line-height: 1.65; }
+        .card { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 26px; margin-top: 16px; box-shadow: 0 8px 25px #173f3209; }
+        .step { font-size: 11px; font-weight: 900; color: var(--g2); letter-spacing: .08em; margin-bottom: 7px; }
+        h2 { font-size: 21px; margin: 0 0 5px; }
+        .desc { font-size: 13px; color: var(--muted); line-height: 1.55; margin: 0 0 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .field { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 7px; }
+        input, textarea, select { width: 100%; border: 1px solid #d9e0dc; background: #fff; border-radius: 11px; padding: 13px; font: inherit; color: var(--ink); outline: none; }
+        input:focus, textarea:focus, select:focus { border-color: #668b7c; box-shadow: 0 0 0 3px #e6efea; }
+        textarea { min-height: 96px; resize: vertical; }
+        .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+        .choice, .check { display: flex; gap: 9px; align-items: flex-start; border: 1px solid var(--line); border-radius: 11px; padding: 12px; font-size: 13px; line-height: 1.5; }
+        .choice input, .check input { width: auto; accent-color: var(--g); margin-top: 2px; }
+        .schedule, .signature { background: var(--soft); border-radius: 14px; padding: 16px; }
+        .schedule textarea { min-height: 115px; }
+        .notice { background: #f7f9f7; border-left: 4px solid var(--g); border-radius: 9px; padding: 14px 15px; font-size: 12.5px; line-height: 1.7; color: #56615c; margin: 14px 0; }
+        .consent { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; }
+        .consent-title { font-weight: 900; font-size: 14px; margin-bottom: 8px; }
+        .consent p { font-size: 12.5px; color: #5f6b65; line-height: 1.7; margin: 0 0 10px; }
+        .check { background: #f8faf8; margin-top: 8px; }
+        .submit { width: 100%; margin-top: 18px; border: 0; border-radius: 13px; padding: 16px; background: var(--g); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; }
+        .success { display: none; margin-top: 15px; padding: 15px; background: #e7f1eb; border: 1px solid #cfe0d6; color: #285241; font-size: 13px; text-align: center; font-weight: 800; border-radius: 10px; }
+        .footer { text-align: center; color: #8a938e; font-size: 11px; margin-top: 20px; }
+        @media(max-width: 620px) {
+          header { padding: 28px 22px; }
+          header h1 { font-size: 26px; }
+          .card { padding: 22px 18px; }
+          .grid, .choices { grid-template-columns: 1fr; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="wrap">
+        <header>
+          <div class="brand">Übermensch</div>
+          <h1>현장조사 참여 신청서 및 동의서</h1>
+          <p>더 나은 서책 추천 서비스를 만들기 위해 리서치 데이터를 수집하고자 합니다.<br>아래 내용을 확인한 후 참여 정보를 작성해 주세요.</p>
+        </header>
+        <form id="form">
+          <section class="card">
+            <div class="step">01 · PARTICIPANT</div>
+            <h2>참여자 정보</h2>
+            <p class="desc">조사 진행 및 일정 안내를 위해 필요한 기본 정보입니다.</p>
+            <div class="grid">
+              <div class="field"><label>이름 *</label><input name="name" required placeholder="이름을 입력해 주세요"></div>
+              <div class="field"><label>연락처 *</label><input name="phone" required inputmode="tel" placeholder="010-0000-0000"></div>
+              <div class="field"><label>연령대</label>
+                <select name="age">
+                  <option value="">선택해 주세요</option>
+                  <option>10대</option><option>20대</option><option>30대</option><option>40대</option><option>50대 이상</option>
+                </select>
+              </div>
+              <div class="field"><label>직업 / 소속</label><input name="job" placeholder="선택 작성"></div>
+            </div>
+          </section>
 
+          <section class="card">
+            <div class="step">02 · READING</div>
+            <h2>독서 관련 정보</h2>
+            <p class="desc">서책 추천 데이터 분석을 위한 간단한 사전 질문입니다.</p>
+            <div class="field"><label>평소 독서 빈도</label>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="frequency" value="거의 읽지 않음">거의 읽지 않음</label>
+                <label class="choice"><input type="radio" name="frequency" value="월 1권 미만">월 1권 미만</label>
+                <label class="choice"><input type="radio" name="frequency" value="월 1~2권">월 1~2권</label>
+                <label class="choice"><input type="radio" name="frequency" value="월 3권 이상">월 3권 이상</label>
+              </div>
+            </div>
+            <div class="field"><label>관심 있는 서책 분야</label><input name="interest" placeholder="예: 소설, 에세이, 심리, 자기계발"></div>
+            <div class="field"><label>책을 고를 때 중요하게 생각하는 점</label><textarea name="criteria" placeholder="예: 제목, 표지, 정보, 추천 리뷰 등"></textarea></div>
+          </section>
+
+          <section class="card">
+            <div class="step">03 · SCHEDULE</div>
+            <h2>현장조사 희망 일정</h2>
+            <p class="desc">현장 조사는 일정 협의 후 진행됩니다. 가능한 날짜와 시간을 작성해 주세요.</p>
+            <div class="schedule"><label>가능한 날짜 및 시간 *</label><textarea name="schedule" required placeholder="예) 평일 오후 6시 이후 가능 / 9월 20일 오후 2시 가능 등"></textarea></div>
+            <div class="notice">※ 작성해 주신 시간을 바탕으로 일정을 조정합니다. 작성한 시간이 최종 확정 일정은 아닙니다.</div>
+          </section>
+
+          <section class="card">
+            <div class="step">04 · CONSENT</div>
+            <h2>개인정보 및 조사 데이터 수집·이용 동의</h2>
+            <p class="desc">아래 내용을 확인한 후 동의 여부를 체크해 주세요.</p>
+            <div class="consent">
+              <div class="consent-title">개인정보 수집 및 이용</div>
+              <p><b>수집 항목:</b> 이름, 연락처, 연령대, 직업/소속, 참여 가능 일정</p>
+              <p><b>이용 목적:</b> 현장조사 참여자 확인, 일정 조정, 조사 진행 및 관련 안내</p>
+              <p><b>보유 및 파기:</b> 수집된 개인정보 및 조사 데이터는 <b>조사 종료 후 3개월간 보관 후 파기됩니다.</b></p>
+              <label class="check"><input type="checkbox" name="privacyConsent" value="동의" required>위 개인정보 수집 및 이용 내용을 확인하였으며 이에 동의합니다.</label>
+            </div>
+            <div class="consent">
+              <div class="consent-title">현장조사 데이터 활용</div>
+              <p>독서 취향, 설문 결과, 프로필 활용 의견 및 피드백은 Übermensch 서책 추천 프로필의 추천 정확도 향상과 서비스 개선을 위해 분석 자료로 활용될 수 있습니다.</p>
+              <label class="check"><input type="checkbox" name="dataConsent" value="동의" required>위 조사 데이터 수집 및 활용 내용을 확인하였으며 이에 동의합니다.</label>
+            </div>
+            <div class="consent">
+              <div class="consent-title">현장조사 참여 확인</div>
+              <p>본인은 조사 목적과 진행 내용을 확인하였으며, 현장조사에 참여하는 것에 동의합니다.</p>
+              <label class="check"><input type="checkbox" name="participationConsent" value="동의" required>현장조사 참여에 동의합니다.</label>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="step">05 · CONFIRMATION</div>
+            <h2>참여 동의 확인</h2>
+            <p class="desc">위 내용을 모두 확인하였으며 참여자 이름을 작성해 주세요.</p>
+            <div class="signature"><label>참여자 이름 *</label><input name="confirmName" required placeholder="이름을 입력해 주세요"></div>
+            <button class="submit" type="submit">신청 및 데이터 입력</button>
+            <div class="success" id="success"></div>
+          </section>
+        </form>
+        <div class="footer">Übermensch · Book Recommendation Research</div>
+      </div>
+
+      <script>
+        const form = document.getElementById('form');
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const n = form.elements.name.value.trim();
+          const c = form.elements.confirmName.value.trim();
+          if (n !== c) {
+            alert('참여자 이름과 동의 이름이 일치하지 않습니다.');
+            return;
+          }
+          const fd = new FormData(form);
+          const d = Object.fromEntries(fd.entries());
+          let a = [];
+          try { a = JSON.parse(localStorage.getItem('ubermenschApplications') || '[]'); } catch(err) { a = []; }
+          
+          const item = {
+            id: 'UB-' + Date.now(),
+            name: d.name || '',
+            phone: d.phone || '',
+            age: d.age || '',
+            job: d.job || '',
+            frequency: d.frequency || '',
+            interest: d.interest || '',
+            criteria: d.criteria || '',
+            schedule: d.schedule || '',
+            privacyConsent: d.privacyConsent || '',
+            dataConsent: d.dataConsent || '',
+            participationConsent: d.participationConsent || '',
+            confirmName: d.confirmName || '',
+            status: '신규',
+            adminMemo: '',
+            submittedAt: new Date().toISOString()
+          };
+          a.push(item);
+          try { localStorage.setItem('ubermenschApplications', JSON.stringify(a)); } catch(err) {}
+          
+          document.getElementById('success').style.display = 'block';
+          document.getElementById('success').textContent = '신청이 저장되었습니다. 잠시 후 이전 화면으로 돌아갑니다.';
+          form.querySelector('.submit').disabled = true;
+
+          // 제출 후 1.5초 뒤에 부모 창(avatar.html)으로 돌아가기 신호 전송
+          setTimeout(() => {
+            window.parent.postMessage({ type: 'app_submitted' }, '*');
+          }, 1500);
+        });
+      <\/script>
+    </body>
+    </html>`;
+
+    // 1. 신청서 화면으로 전환 (아바타 숨김, 신청서 보임)
     function showApplication() {
-      originalBodyContent = document.body.innerHTML;
+      const appIframe = document.getElementById('appIframe');
+      
+      // iframe 내용이 비어있을 때만 HTML 삽입
+      if (!appIframe.srcdoc) {
+        appIframe.srcdoc = formHtmlContent;
+      }
 
-      document.body.innerHTML = `<iframe title="Übermensch 현장조사 신청서" src="data:text/html;base64,PCFkb2N0eXBlIGh0bWw+PGh0bWwgbGFuZz0ia28iPjxoZWFkPjxtZXRhIGNoYXJzZXQ9InV0Zi04Ij48bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLGluaXRpYWwtc2NhbGU9MSI+PHRpdGxlPsOcYmVybWVuc2NoIO2YhOyepeyhsOyCrCDsi6Dssq3shJw8L3RpdGxlPgo8c3R5bGU+Cip7Ym94LXNpemluZzpib3JkZXItYm94fTpyb290ey0tZzojMTczZjMyOy0tZzI6IzI0NTc0NjstLXNvZnQ6I2VkZjNlZjstLWJnOiNmNGY2ZjM7LS1pbms6IzFkMjkyNDstLW11dGVkOiM2ZTc5NzM7LS1saW5lOiNkY2U0ZGZ9CmJvZHl7bWFyZ2luOjA7YmFja2dyb3VuZDp2YXIoLS1iZyk7Zm9udC1mYW1pbHk6c3lzdGVtLXVpLC1hcHBsZS1zeXN0ZW0sIk5vdG8gU2FucyBLUiIsc2Fucy1zZXJpZjtjb2xvcjp2YXIoLS1pbmspfS53cmFwe21heC13aWR0aDo3NjBweDttYXJnaW46YXV0bztwYWRkaW5nOjI4cHggMTZweCA2MHB4fQpoZWFkZXJ7YmFja2dyb3VuZDpsaW5lYXItZ3JhZGllbnQoMTM1ZGVnLCMxNTNkMzEsIzIwNGMzZCk7Y29sb3I6d2hpdGU7Ym9yZGVyLXJhZGl1czoyNHB4O3BhZGRpbmc6MzRweCAzMnB4O2JveC1zaGFkb3c6MCAxNXB4IDM1cHggIzE3M2YzMjIwfS5icmFuZHtmb250LXdlaWdodDo5MDA7Y29sb3I6I2M5ZGNkM30uaGVhZGVyIGgxLGhlYWRlciBoMXtmb250LXNpemU6MzBweDttYXJnaW46OHB4IDAgMTBweH0uaGVhZGVyIHAsaGVhZGVyIHB7bWFyZ2luOjA7Y29sb3I6I2Q0ZTBkYTtmb250LXNpemU6MTRweDtsaW5lLWhlaWdodDoxLjY1fQouY2FyZHtiYWNrZ3JvdW5kOiNmZmY7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1saW5lKTtib3JkZXItcmFkaXVzOjIwcHg7cGFkZGluZzoyNnB4O21hcmdpbi10b3A6MTZweDtib3gtc2hhZG93OjAgOHB4IDI1cHggIzE3M2YzMjA5fS5zdGVwe2ZvbnQtc2l6ZToxMXB4O2ZvbnQtd2VpZ2h0OjkwMDtjb2xvcjp2YXIoLS1nMik7bGV0dGVyLXNwYWNpbmc6LjA4ZW07bWFyZ2luLWJvdHRvbTo3cHh9aDJ7Zm9udC1zaXplOjIxcHg7bWFyZ2luOjAgMCA1cHh9LmRlc2N7Zm9udC1zaXplOjEzcHg7Y29sb3I6dmFyKC0tbXV0ZWQpO2xpbmUtaGVpZ2h0OjEuNTU7bWFyZ2luOjAgMCAyMHB4fS5ncmlke2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmcjtnYXA6MTVweH0uZmllbGR7bWFyZ2luLWJvdHRvbToxNXB4fWxhYmVse2Rpc3BsYXk6YmxvY2s7Zm9udC1zaXplOjEzcHg7Zm9udC13ZWlnaHQ6ODAwO21hcmdpbi1ib3R0b206N3B4fQppbnB1dCx0ZXh0YXJlYSxzZWxlY3R7d2lkdGg6MTAwJTtib3JkZXI6MXB4IHNvbGlkICNkOWUwZGM7YmFja2dyb3VuZDojZmZmO2JvcmRlci1yYWRpdXM6MTFweDtwYWRkaW5nOjEzcHg7Zm9udDppbmhlcml0O2NvbG9yOnZhcigtLWluayk7b3V0bGluZTpub25lfWlucHV0OmZvY3VzLHRleHRhcmVhOmZvY3VzLHNlbGVjdDpmb2N1c3tib3JkZXItY29sb3I6IzY2OGI3Yztib3gtc2hhZG93OjAgMCAwIDNweCAjZTZlZmVhfXRleHRhcmVhe21pbi1oZWlnaHQ6OTZweDtyZXNpemU6dmVydGljYWx9Ci5jaG9pY2Vze2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmcjtnYXA6OXB4fS5jaG9pY2UsLmNoZWNre2Rpc3BsYXk6ZmxleDtnYXA6OXB4O2FsaWduLWl0ZW1zOmZsZXgtc3RhcnQ7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1saW5lKTtib3JkZXItcmFkaXVzOjExcHg7cGFkZGluZzoxMnB4O2ZvbnQtc2l6ZToxM3B4O2xpbmUtaGVpZ2h0OjEuNX0uY2hvaWNlIGlucHV0LC5jaGVjayBpbnB1dHt3aWR0aDphdXRvO2FjY2VudC1jb2xvcjp2YXIoLS1nKTttYXJnaW4tdG9wOjJweH0uc2NoZWR1bGUsLnNpZ25hdHVyZXtiYWNrZ3JvdW5kOnZhcigtLXNvZnQpO2JvcmRlci1yYWRpdXM6MTRweDtwYWRkaW5nOjE2cHh9LnNjaGVkdWxlIHRleHRhcmVhe21pbi1oZWlnaHQ6MTE1cHh9Ci5ub3RpY2V7YmFja2dyb3VuZDojZjdmOWY3O2JvcmRlci1sZWZ0OjRweCBzb2xpZCB2YXIoLS1nKTtib3JkZXItcmFkaXVzOjlweDtwYWRkaW5nOjE0cHggMTVweDtmb250LXNpemU6MTIuNXB4O2xpbmUtaGVpZ2h0OjEuNztjb2xvcjojNTY2MTVjO21hcmdpbjoxNHB4IDB9LmNvbnNlbnR7Ym9yZGVyLXRvcDoxcHggc29saWQgdmFyKC0tbGluZSk7cGFkZGluZy10b3A6MTZweDttYXJnaW4tdG9wOjE2cHh9LmNvbnNlbnQtdGl0bGV7Zm9udC13ZWlnaHQ6OTAwO2ZvbnQtc2l6ZToxNHB4O21hcmdpbi1ib3R0b206OHB4fS5jb25zZW50IHB7Zm9udC1zaXplOjEyLjVweDtjb2xvcjojNWY2YjY1O2xpbmUtaGVpZ2h0OjEuNzttYXJnaW46MCAwIDEwcHh9LmNoZWNre2JhY2tncm91bmQ6I2Y4ZmFmODttYXJnaW4tdG9wOjhweH0KLnN1Ym1pdHt3aWR0aDoxMDAlO21hcmdpbi10b3A6MThweDtib3JkZXI6MDtib3JkZXItcmFkaXVzOjEzcHg7cGFkZGluZzoxNnB4O2JhY2tncm91bmQ6dmFyKC0tZyk7Y29sb3I6I2ZmZjtmb250LXNpemU6MTVweDtmb250LXdlaWdodDo5MDA7Y3Vyc29yOnBvaW50ZXJ9LnN1Y2Nlc3N7ZGlzcGxheTpub25lO21hcmdpbi10b3A6MTVweDtwYWRkaW5nOjE1cHg7YmFja2dyb3VuZDojZTdmMWViO2JvcmRlcjoxcHggc29saWQgI2NmZTBkNjtib3JkZXItcmFkaXVzOjEycHg7Y29sb3I6IzI4NTI0MTtmb250LXNpemU6MTNweDt0ZXh0LWFsaWduOmNlbnRlcjtmb250LXdlaWdodDo4MDB9LmZvb3Rlcnt0ZXh0LWFsaWduOmNlbnRlcjtjb2xvcjojOGE5MzhlO2ZvbnQtc2l6ZToxMXB4O21hcmdpbi10b3A6MjBweH0KQG1lZGlhKG1heC13aWR0aDo2MjBweCl7aGVhZGVye3BhZGRpbmc6MjhweCAyMnB4fWhlYWRlciBoMXtmb250LXNpemU6MjZweH0uY2FyZHtwYWRkaW5nOjIycHggMThweH0uZ3JpZCwuY2hvaWNlc3tncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyfX0KPC9zdHlsZT48L2hlYWQ+PGJvZHk+PGRpdiBjbGFzcz0id3JhcCI+CjxoZWFkZXI+PGRpdiBjbGFzcz0iYnJhbmQiPsOcYmVybWVuc2NoPC9kaXY+PGgxPu2YhOyepeyhsOyCrCDssLjsl6wg7Iug7LKt7IScIOuwjyDrj5nsnZjshJw8L2gxPjxwPuuNlCDrgpjsnYAg7LGFIOy2lOyynCDshJzruYTsiqTrpbwg66eM65Ok6riwIOychO2VnCDtmITsnqUg642w7J207YSwIOyImOynkSDsobDsgqzsnoXri4jri6QuPGJyPuyVhOuemCDrgrTsmqnsnYQg7ZmV7J247ZWcIO2bhCDssLjsl6wg7KCV67O066W8IOyekeyEse2VtOyjvOyEuOyalC48L3A+PC9oZWFkZXI+Cjxmb3JtIGlkPSJmb3JtIj4KPHNlY3Rpb24gY2xhc3M9ImNhcmQiPjxkaXYgY2xhc3M9InN0ZXAiPjAxIMK3IFBBUlRJQ0lQQU5UPC9kaXY+PGgyPuywuOyXrOyekCDsoJXrs7Q8L2gyPjxwIGNsYXNzPSJkZXNjIj7sobDsgqwg7KeE7ZaJIOuwjyDsnbzsoJUg7JWI64K066W8IOychO2VtCDtlYTsmpTtlZwg6riw67O4IOygleuztOyeheuLiOuLpC48L3A+PGRpdiBjbGFzcz0iZ3JpZCI+CjxkaXYgY2xhc3M9ImZpZWxkIj48bGFiZWw+7J2066aEICo8L2xhYmVsPjxpbnB1dCBuYW1lPSJuYW1lIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0i7J2066aE7J2EIOyeheugpe2VtOyjvOyEuOyalCI+PC9kaXY+PGRpdiBjbGFzcz0iZmllbGQiPjxsYWJlbD7sl7Drnb3sspggKjwvbGFiZWw+PGlucHV0IG5hbWU9InBob25lIiByZXF1aXJlZCBpbnB1dG1vZGU9InRlbCIgcGxhY2Vob2xkZXI9IjAxMC0wMDAwLTAwMDAiPjwvZGl2Pgo8ZGl2IGNsYXNzPSJmaWVsZCI+PGxhYmVsPuyXsOugueuMgDwvbGFiZWw+PHNlbGVjdCBuYW1lPSJhZ2UiPjxvcHRpb24gdmFsdWU9IiI+7ISg7YOd7ZW07KO87IS47JqUPC9vcHRpb24+PG9wdGlvbj4xMOuMgDwvb3B0aW9uPjxvcHRpb24+MjDrjIA8L29wdGlvbj48b3B0aW9uPjMw64yAPC9vcHRpb24+PG9wdGlvbj40MOuMgDwvb3B0aW9uPjxvcHRpb24+NTDrjIAg7J207IOBPC9vcHRpb24+PC9zZWxlY3Q+PC9kaXY+PGRpdiBjbGFzcz0iZmllbGQiPjxsYWJlbD7sp4Hsl4UgLyDshozsho08L2xhYmVsPjxpbnB1dCBuYW1lPSJqb2IiIHBsYWNlaG9sZGVyPSLshKDtg50g7J6R7ISxIj48L2Rpdj48L2Rpdj48L3NlY3Rpb24+CjxzZWN0aW9uIGNsYXNzPSJjYXJkIj48ZGl2IGNsYXNzPSJzdGVwIj4wMiDCtyBSRUFESU5HPC9kaXY+PGgyPuuPheyEnCDqtIDroKgg7KCV67O0PC9oMj48cCBjbGFzcz0iZGVzYyI+7LGFIOy2lOyynCDrjbDsnbTthLAg67aE7ISd7J2EIOychO2VnCDqsITri6jtlZwg7IKs7KCEIOyniOusuOyeheuLiOuLpC48L3A+CjxkaXYgY2xhc3M9ImZpZWxkIj48bGFiZWw+7Y+J7IaMIOuPheyEnCDruYjrj4Q8L2xhYmVsPjxkaXYgY2xhc3M9ImNob2ljZXMiPjxsYWJlbCBjbGFzcz0iY2hvaWNlIj48aW5wdXQgdHlwZT0icmFkaW8iIG5hbWU9ImZyZXF1ZW5jeSIgdmFsdWU9IuqxsOydmCDsnb3sp4Ag7JWK7J2MIj7qsbDsnZgg7J297KeAIOyViuydjDwvbGFiZWw+PGxhYmVsIGNsYXNzPSJjaG9pY2UiPjxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZnJlcXVlbmN5IiB2YWx1ZT0i7JuUIDHqtowg66+466eMIj7sm5QgMeq2jCDrr7jrp4w8L2xhYmVsPjxsYWJlbCBjbGFzcz0iY2hvaWNlIj48aW5wdXQgdHlwZT0icmFkaW8iIG5hbWU9ImZyZXF1ZW5jeSIgdmFsdWU9IuyblCAxfjLqtowiPuyblCAxfjLqtow8L2xhYmVsPjxsYWJlbCBjbGFzcz0iY2hvaWNlIj48aW5wdXQgdHlwZT0icmFkaW8iIG5hbWU9ImZyZXF1ZW5jeSIgdmFsdWU9IuyblCAz6raMIOydtOyDgSI+7JuUIDPqtowg7J207IOBPC9sYWJlbD48L2Rpdj48L2Rpdj4KPGRpdiBjbGFzcz0iZmllbGQiPjxsYWJlbD7qtIDsi6wg7J6I64qUIOyxhSDrtoTslbw8L2xhYmVsPjxpbnB1dCBuYW1lPSJpbnRlcmVzdCIgcGxhY2Vob2xkZXI9IuyYiDog7IaM7ISkLCDsl5DshLjsnbQsIOyLrOumrCwg7J6Q6riw6rOE67CcIj48L2Rpdj48ZGl2IGNsYXNzPSJmaWVsZCI+PGxhYmVsPuyxheydhCDqs6Drpbwg65WMIOykkeyalO2VmOqyjCDsg53qsIHtlZjripQg7KCQPC9sYWJlbD48dGV4dGFyZWEgbmFtZT0iY3JpdGVyaWEiIHBsYWNlaG9sZGVyPSLsmIg6IOyerOuvuCwg7JyE66GcLCDsoJXrs7QsIOy2lOyynCDrpqzrt7Ag65OxIj48L3RleHRhcmVhPjwvZGl2Pjwvc2VjdGlvbj4KPHNlY3Rpb24gY2xhc3M9ImNhcmQiPjxkaXYgY2xhc3M9InN0ZXAiPjAzIMK3IFNDSEVEVUxFPC9kaXY+PGgyPu2YhOyepeyhsOyCrCA27ZqMIOydvOyglTwvaDI+PHAgY2xhc3M9ImRlc2MiPuy0nSA27ZqMIOynhO2WiSDsmIjsoJXsnoXri4jri6QuIOqwgOuKpe2VnCDrgqDsp5zsmYAg7Iuc6rCE7J2EIO2VnCDsubjsl5Ag7J6Q7Jyg66Gt6rKMIOyekeyEse2VtOyjvOyEuOyalC48L3A+PGRpdiBjbGFzcz0ic2NoZWR1bGUiPjxsYWJlbD7qsIDriqXtlZwg64Kg7KecIOuwjyDsi5zqsIQgKjwvbGFiZWw+PHRleHRhcmVhIG5hbWU9InNjaGVkdWxlIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0i7JiIKSDtj4nsnbwg7Jik7ZuEIDbsi5wg7J207ZuEIOqwgOuKpSAvIDnsm5QgMjDsnbwg7Jik7ZuEIDLsi5wsIDnsm5QgMjTsnbwg7Jik7ZuEIDXsi5wg6rCA64qlIOuTsSI+PC90ZXh0YXJlYT48L2Rpdj48ZGl2IGNsYXNzPSJub3RpY2UiPuKAuyDsnpHshLHtlbTso7zsi6Ag7Iuc6rCE7J2EIOuwlO2DleycvOuhnCDqsJzrs4Qg7Jew6529IO2bhCA27ZqMIOydvOygleydhCDsobDsnKjtlanri4jri6QuIOyekeyEse2VnCDsi5zqsITsnbQg7LWc7KKFIO2ZleyglSDsnbzsoJXsnYAg7JWE64uZ64uI64ukLjwvZGl2Pjwvc2VjdGlvbj4KPHNlY3Rpb24gY2xhc3M9ImNhcmQiPjxkaXYgY2xhc3M9InN0ZXAiPjA0IMK3IENPTlNFTlQ8L2Rpdj48aDI+6rCc7J247KCV67O0IOuwjyDsobDsgqwg642w7J207YSwIOyImOynkcK37J207JqpIOuPmeydmDwvaDI+PHAgY2xhc3M9ImRlc2MiPuyVhOuemCDrgrTsmqnsnYQg7ZmV7J247ZWcIO2bhCDrj5nsnZgg7Jes67aA66W8IOyytO2BrO2VtOyjvOyEuOyalC48L3A+CjxkaXYgY2xhc3M9ImNvbnNlbnQiPjxkaXYgY2xhc3M9ImNvbnNlbnQtdGl0bGUiPuqwnOyduOygleuztCDsiJjsp5Eg67CPIOydtOyaqTwvZGl2PjxwPjxiPuyImOynkSDtla3rqqk6PC9iPiDsnbTrpoQsIOyXsOudveyymCwg7Jew66C564yALCDsp4Hsl4Uv7IaM7IaNLCDssLjsl6wg6rCA64qlIOydvOyglTwvcD48cD48Yj7snbTsmqkg66qp7KCBOjwvYj4g7ZiE7J6l7KGw7IKsIOywuOyXrOyekCDtmZXsnbgsIOydvOyglSDsobDsnKgsIOyhsOyCrCDsp4Ttlokg67CPIOq0gOugqCDslYjrgrQ8L3A+PHA+PGI+67O07JygIOuwjyDtjIzquLA6PC9iPiDsiJjsp5HrkJwg6rCc7J247KCV67O0IOuwjyDsobDsgqwg642w7J207YSw64qUIDxiPuyhsOyCrCDsooXro4wg7ZuEIDPqsJzsm5TqsIQg67O06rSAIO2bhCDtjIzquLDtlanri4jri6QuPC9iPjwvcD48bGFiZWwgY2xhc3M9ImNoZWNrIj48aW5wdXQgdHlwZT0iY2hlY2tib3giIG5hbWU9InByaXZhY3lDb25zZW50IiB2YWx1ZT0i64+Z7J2YIiByZXF1aXJlZD7snIQg6rCc7J247KCV67O0IOyImOynkSDrsI8g7J207JqpIOuCtOyaqeydhCDtmZXsnbjtlZjsmIDsnLzrqbAg7J207JeQIOuPmeydmO2VqeuLiOuLpC48L2xhYmVsPjwvZGl2Pgo8ZGl2IGNsYXNzPSJjb25zZW50Ij48ZGl2IGNsYXNzPSJjb25zZW50LXRpdGxlIj7tmITsnqXsobDsgqwg642w7J207YSwIO2ZnOyaqTwvZGl2PjxwPuuPheyEnCDst6jtlqUsIOyEoO2DnSDqsrDqs7wsIO2UhOuhnOq3uOueqCDsgqzsmqkg7J2Y6rKsIOuwjyDtlLzrk5zrsLHsnYAgw5xiZXJtZW5zY2gg7LGFIOy2lOyynCDtlITroZzqt7jrnqjsnZgg7LaU7LKcIOygle2ZleuPhCDtlqXsg4Hqs7wg7ISc67mE7IqkIOqwnOyEoOydhCDsnITtlZwg67aE7ISdIOyekOujjOuhnCDtmZzsmqnrkKAg7IiYIOyeiOyKteuLiOuLpC48L3A+PGxhYmVsIGNsYXNzPSJjaGVjayI+PGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJkYXRhQ29uc2VudCIgdmFsdWU9IuuPmeydmCIgcmVxdWlyZWQ+7JyEIOyhsOyCrCDrjbDsnbTthLAg7IiY7KeRIOuwjyDtmZzsmqkg64K07Jqp7J2EIO2ZleyduO2VmOyYgOycvOupsCDsnbTsl5Ag64+Z7J2Y7ZWp64uI64ukLjwvbGFiZWw+PC9kaXY+CjxkaXYgY2xhc3M9ImNvbnNlbnQiPjxkaXYgY2xhc3M9ImNvbnNlbnQtdGl0bGUiPu2YhOyepeyhsOyCrCDssLjsl6wg7ZmV7J24PC9kaXY+PHA+67O47J247J2AIOyhsOyCrCDrqqnsoIHqs7wg7KeE7ZaJIOuCtOyaqeydhCDtmZXsnbjtlZjsmIDsnLzrqbAsIOy0nSA27ZqM7J2YIO2YhOyepeyhsOyCrOyXkCDssLjsl6ztlZjripQg6rKD7JeQIOuPmeydmO2VqeuLiOuLpC48L3A+PGxhYmVsIGNsYXNzPSJjaGVjayI+PGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJwYXJ0aWNpcGF0aW9uQ29uc2VudCIgdmFsdWU9IuuPmeydmCIgcmVxdWlyZWQ+7ZiE7J6l7KGw7IKsIOywuOyXrOyXkCDrj5nsnZjtlanri4jri6QuPC9sYWJlbD48L2Rpdj48L3NlY3Rpb24+CjxzZWN0aW9uIGNsYXNzPSJjYXJkIj48ZGl2IGNsYXNzPSJzdGVwIj4wNSDCtyBDT05GSVJNQVRJT048L2Rpdj48aDI+7LC47JesIOuPmeydmCDtmZXsnbg8L2gyPjxwIGNsYXNzPSJkZXNjIj7snIQg64K07Jqp7J2EIOuqqOuRkCDtmZXsnbjtlZjshajri6TrqbQg7LC47Jes7J6QIOydtOumhOydhCDsnpHshLHtlbTso7zshLjsmpQuPC9wPjxkaXYgY2xhc3M9InNpZ25hdHVyZSI+PGxhYmVsPuywuOyXrOyekCDsnbTrpoQgKjwvbGFiZWw+PGlucHV0IG5hbWU9ImNvbmZpcm1OYW1lIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0i7J2066aE7J2EIOyeheugpe2VtOyjvOyEuOyalCI+PC9kaXY+PGJ1dHRvbiBjbGFzcz0ic3VibWl0IiB0eXBlPSJzdWJtaXQiPuyLoOyyrSDrsI8g64+Z7J2YIOyZhOujjDwvYnV0dG9uPjxkaXYgY2xhc3M9InN1Y2Nlc3MiIGlkPSJzdWNjZXNzIj7si6Dssq0g64K07Jqp7J20IO2ZleyduOuQmOyXiOyKteuLiOuLpC4g6rCQ7IKs7ZWp64uI64ukLjwvZGl2Pjwvc2VjdGlvbj4KPC9mb3JtPjxkaXYgY2xhc3M9ImZvb3RlciI+w5xiZXJtZW5zY2ggwrcgQm9vayBSZWNvbW1lbmRhdGlvbiBSZXNlYXJjaDwvZGl2PjwvZGl2Pgo8c2NyaXB0Pgpjb25zdCBmb3JtPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdmb3JtJyk7CmZvcm0uYWRkRXZlbnRMaXN0ZW5lcignc3VibWl0JyxlPT57CiAgZS5wcmV2ZW50RGVmYXVsdCgpOwogIGNvbnN0IG49Zm9ybS5lbGVtZW50cy5uYW1lLnZhbHVlLnRyaW0oKSwgYz1mb3JtLmVsZW1lbnRzLmNvbmZpcm1OYW1lLnZhbHVlLnRyaW0oKTsKICBpZihuIT09Yyl7YWxlcnQoJ+ywuOyXrOyekCDsoJXrs7TsnZgg7J2066aE6rO8IOuPmeydmCDtmZXsnbgg7J2066aE7J20IOuPmeydvO2VnOyngCDtmZXsnbjtlbTso7zshLjsmpQuJyk7cmV0dXJuO30KICBjb25zdCBmZD1uZXcgRm9ybURhdGEoZm9ybSk7CiAgY29uc3QgZD1PYmplY3QuZnJvbUVudHJpZXMoZmQuZW50cmllcygpKTsKICBsZXQgYT1bXTsKICB0cnl7YT1KU09OLnBhcnNlKGxvY2FsU3RvcmFnZS5nZXRJdGVtKCd1YmVybWVuc2NoQXBwbGljYXRpb25zJyl8fCdbXScpfWNhdGNoKGVycil7YT1bXTt9CiAgY29uc3QgaXRlbT17CiAgICBpZDonVUItJytEYXRlLm5vdygpLAogICAgbmFtZTpkLm5hbWV8fCcnLAogICAgcGhvbmU6ZC5waG9uZXx8JycsCiAgICBhZ2U6ZC5hZ2V8fCcnLAogICAgam9iOmQuam9ifHwnJywKICAgIGZyZXF1ZW5jeTpkLmZyZXF1ZW5jeXx8JycsCiAgICBpbnRlcmVzdDpkLmludGVyZXN0fHwnJywKICAgIGNyaXRlcmlhOmQuY3JpdGVyaWF8fCcnLAogICAgc2NoZWR1bGU6ZC5zY2hlZHVsZXx8JycsCiAgICBwcml2YWN5Q29uc2VudDpkLnByaXZhY3lDb25zZW50fHwnJywKICAgIGRhdGFDb25zZW50OmQuZGF0YUNvbnNlbnR8fCcnLAogICAgcGFydGljaXBhdGlvbkNvbnNlbnQ6ZC5wYXJ0aWNpcGF0aW9uQ29uc2VudHx8JycsCiAgICBjb25maXJtTmFtZTpkLmNvbmZpcm1OYW1lfHwnJywKICAgIHN0YXR1czon7Iug6recJywKICAgIGFkbWluTWVtbzonJywKICAgIHN1Ym1pdHRlZEF0Om5ldyBEYXRlKCkudG9JU09TdHJpbmcoKQogIH07CiAgYS5wdXNoKGl0ZW0pOwogIHRyeXtsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgndWJlcm1lbnNjaEFwcGxpY2F0aW9ucycsSlNPTi5zdHJpbmdpZnkoYSkpO31jYXRjaChlcnIpewogICAgdHJ5e3dpbmRvdy5wYXJlbnQucG9zdE1lc3NhZ2Uoe3R5cGU6J3ViZXJtZW5zY2hBcHBsaWNhdGlvbicsaXRlbX0sJyonKTt9Y2F0Y2goZSl7fQogIH0KICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnc3VjY2VzcycpLnN0eWxlLmRpc3BsYXk9J2Jsb2NrJzsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnc3VjY2VzcycpLnRleHRDb250ZW50PSfsi6Dssq3snbQg7KCA7J6l65CY7JeI7Iq164uI64ukLiDqsJDsgqztlanri4jri6QuJzsKICBmb3JtLnF1ZXJ5U2VsZWN0b3IoJy5zdWJtaXQnKS5kaXNhYmxlZD10cnVlOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdzdWNjZXNzJykuc2Nyb2xsSW50b1ZpZXcoe2JlaGF2aW9yOidzbW9vdGgnfSk7Cn0pOwo8L3NjcmlwdD48L2JvZHk+PC9odG1sPg==" style="position:fixed;inset:0;width:100%;height:100%;border:0;background:#f4f6f3"></iframe>`;
+      document.getElementById('avatarContainer').style.display = 'none';
+      document.getElementById('appLayer').style.display = 'block';
       window.scrollTo(0, 0);
 
+      // 제출 완료 이벤트 감지 등록
       window.addEventListener('message', handleSubmissionComplete);
-
     }
+
+    // 2. 다시 아바타 화면으로 복구 (신청서 숨김, 아바타 보임)
+    function hideApplication() {
+      document.getElementById('appLayer').style.display = 'none';
+      document.getElementById('avatarContainer').style.display = 'block';
+      window.scrollTo(0, 0);
+    }
+
+    // 3. 제출 완료 시 자동 전환
+    function handleSubmissionComplete(event) {
+      if (event.data && event.data.type === 'app_submitted') {
+        hideApplication();
+        window.removeEventListener('message', handleSubmissionComplete);
+      }
+    } 
+
+    // let originalBodyContent = ''; // 원래 화면을 저장할 변수
+
+    // function showApplication() {
+    //   originalBodyContent = document.body.innerHTML;
+
+    //   document.body.innerHTML = `<iframe title="Übermensch 현장조사 신청서" src="data:text/html;base64,PCFkb2N0eXBlIGh0bWw+PGh0bWwgbGFuZz0ia28iPjxoZWFkPjxtZXRhIGNoYXJzZXQ9InV0Zi04Ij48bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLGluaXRpYWwtc2NhbGU9MSI+PHRpdGxlPsOcYmVybWVuc2NoIO2YhOyepeyhsOyCrCDsi6Dssq3shJw8L3RpdGxlPgo8c3R5bGU+Cip7Ym94LXNpemluZzpib3JkZXItYm94fTpyb290ey0tZzojMTczZjMyOy0tZzI6IzI0NTc0NjstLXNvZnQ6I2VkZjNlZjstLWJnOiNmNGY2ZjM7LS1pbms6IzFkMjkyNDstLW11dGVkOiM2ZTc5NzM7LS1saW5lOiNkY2U0ZGZ9CmJvZHl7bWFyZ2luOjA7YmFja2dyb3VuZDp2YXIoLS1iZyk7Zm9udC1mYW1pbHk6c3lzdGVtLXVpLC1hcHBsZS1zeXN0ZW0sIk5vdG8gU2FucyBLUiIsc2Fucy1zZXJpZjtjb2xvcjp2YXIoLS1pbmspfS53cmFwe21heC13aWR0aDo3NjBweDttYXJnaW46YXV0bztwYWRkaW5nOjI4cHggMTZweCA2MHB4fQpoZWFkZXJ7YmFja2dyb3VuZDpsaW5lYXItZ3JhZGllbnQoMTM1ZGVnLCMxNTNkMzEsIzIwNGMzZCk7Y29sb3I6d2hpdGU7Ym9yZGVyLXJhZGl1czoyNHB4O3BhZGRpbmc6MzRweCAzMnB4O2JveC1zaGFkb3c6MCAxNXB4IDM1cHggIzE3M2YzMjIwfS5icmFuZHtmb250LXdlaWdodDo5MDA7Y29sb3I6I2M5ZGNkM30uaGVhZGVyIGgxLGhlYWRlciBoMXtmb250LXNpemU6MzBweDttYXJnaW46OHB4IDAgMTBweH0uaGVhZGVyIHAsaGVhZGVyIHB7bWFyZ2luOjA7Y29sb3I6I2Q0ZTBkYTtmb250LXNpemU6MTRweDtsaW5lLWhlaWdodDoxLjY1fQouY2FyZHtiYWNrZ3JvdW5kOiNmZmY7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1saW5lKTtib3JkZXItcmFkaXVzOjIwcHg7cGFkZGluZzoyNnB4O21hcmdpbi10b3A6MTZweDtib3gtc2hhZG93OjAgOHB4IDI1cHggIzE3M2YzMjA5fS5zdGVwe2ZvbnQtc2l6ZToxMXB4O2ZvbnQtd2VpZ2h0OjkwMDtjb2xvcjp2YXIoLS1nMik7bGV0dGVyLXNwYWNpbmc6LjA4ZW07bWFyZ2luLWJvdHRvbTo3cHh9aDJ7Zm9udC1zaXplOjIxcHg7bWFyZ2luOjAgMCA1cHh9LmRlc2N7Zm9udC1zaXplOjEzcHg7Y29sb3I6dmFyKC0tbXV0ZWQpO2xpbmUtaGVpZ2h0OjEuNTU7bWFyZ2luOjAgMCAyMHB4fS5ncmlke2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmcjtnYXA6MTVweH0uZmllbGR7bWFyZ2luLWJvdHRvbToxNXB4fWxhYmVse2Rpc3BsYXk6YmxvY2s7Zm9udC1zaXplOjEzcHg7Zm9udC13ZWlnaHQ6ODAwO21hcmdpbi1ib3R0b206N3B4fQppbnB1dCx0ZXh0YXJlYSxzZWxlY3R7d2lkdGg6MTAwJTtib3JkZXI6MXB4IHNvbGlkICNkOWUwZGM7YmFja2dyb3VuZDojZmZmO2JvcmRlci1yYWRpdXM6MTFweDtwYWRkaW5nOjEzcHg7Zm9udDppbmhlcml0O2NvbG9yOnZhcigtLWluayk7b3V0bGluZTpub25lfWlucHV0OmZvY3VzLHRleHRhcmVhOmZvY3VzLHNlbGVjdDpmb2N1c3tib3JkZXItY29sb3I6IzY2OGI3Yztib3gtc2hhZG93OjAgMCAwIDNweCAjZTZlZmVhfXRleHRhcmVhe21pbi1oZWlnaHQ6OTZweDtyZXNpemU6dmVydGljYWx9Ci5jaG9pY2Vze2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmcjtnYXA6OXB4fS5jaG9pY2UsLmNoZWNre2Rpc3BsYXk6ZmxleDtnYXA6OXB4O2FsaWduLWl0ZW1zOmZsZXgtc3RhcnQ7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1saW5lKTtib3JkZXItcmFkaXVzOjExcHg7cGFkZGluZzoxMnB4O2ZvbnQtc2l6ZToxM3B4O2xpbmUtaGVpZ2h0OjEuNX0uY2hvaWNlIGlucHV0LC5jaGVjayBpbnB1dHt3aWR0aDphdXRvO2FjY2VudC1jb2xvcjp2YXIoLS1nKTttYXJnaW4tdG9wOjJweH0uc2NoZWR1bGUsLnNpZ25hdHVyZXtiYWNrZ3JvdW5kOnZhcigtLXNvZnQpO2JvcmRlci1yYWRpdXM6MTRweDtwYWRkaW5nOjE2cHh9LnNjaGVkdWxlIHRleHRhcmVhe21pbi1oZWlnaHQ6MTE1cHh9Ci5ub3RpY2V7YmFja2dyb3VuZDojZjdmOWY3O2JvcmRlci1sZWZ0OjRweCBzb2xpZCB2YXIoLS1nKTtib3JkZXItcmFkaXVzOjlweDtwYWRkaW5nOjE0cHggMTVweDtmb250LXNpemU6MTIuNXB4O2xpbmUtaGVpZ2h0OjEuNztjb2xvcjojNTY2MTVjO21hcmdpbjoxNHB4IDB9LmNvbnNlbnR7Ym9yZGVyLXRvcDoxcHggc29saWQgdmFyKC0tbGluZSk7cGFkZGluZy10b3A6MTZweDttYXJnaW4tdG9wOjE2cHh9LmNvbnNlbnQtdGl0bGV7Zm9udC13ZWlnaHQ6OTAwO2ZvbnQtc2l6ZToxNHB4O21hcmdpbi1ib3R0b206OHB4fS5jb25zZW50IHB7Zm9udC1zaXplOjEyLjVweDtjb2xvcjojNWY2YjY1O2xpbmUtaGVpZ2h0OjEuNzttYXJnaW46MCAwIDEwcHh9LmNoZWNre2JhY2tncm91bmQ6I2Y4ZmFmODttYXJnaW4tdG9wOjhweH0KLnN1Ym1pdHt3aWR0aDoxMDAlO21hcmdpbi10b3A6MThweDtib3JkZXI6MDtib3JkZXItcmFkaXVzOjEzcHg7cGFkZGluZzoxNnB4O2JhY2tncm91bmQ6dmFyKC0tZyk7Y29sb3I6I2ZmZjtmb250LXNpemU6MTVweDtmb250LXdlaWdodDo5MDA7Y3Vyc29yOnBvaW50ZXJ9LnN1Y2Nlc3N7ZGlzcGxheTpub25lO21hcmdpbi10b3A6MTVweDtwYWRkaW5nOjE1cHg7YmFja2dyb3VuZDojZTdmMWViO2JvcmRlcjoxcHggc29saWQgI2NmZTBkNjtib3JkZXItcmFkaXVzOjEycHg7Y29sb3I6IzI4NTI0MTtmb250LXNpemU6MTNweDt0ZXh0LWFsaWduOmNlbnRlcjtmb250LXdlaWdodDo4MDB9LmZvb3Rlcnt0ZXh0LWFsaWduOmNlbnRlcjtjb2xvcjojOGE5MzhlO2ZvbnQtc2l6ZToxMXB4O21hcmdpbi10b3A6MjBweH0KQG1lZGlhKG1heC13aWR0aDo2MjBweCl7aGVhZGVye3BhZGRpbmc6MjhweCAyMnB4fWhlYWRlciBoMXtmb250LXNpemU6MjZweH0uY2FyZHtwYWRkaW5nOjIycHggMThweH0uZ3JpZCwuY2hvaWNlc3tncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyfX0KPC9zdHlsZT48L2hlYWQ+PGJvZHk+PGRpdiBjbGFzcz0id3JhcCI+CjxoZWFkZXI+PGRpdiBjbGFzcz0iYnJhbmQiPsOcYmVybWVuc2NoPC9kaXY+PGgxPu2YhOyepeyhsOyCrCDssLjsl6wg7Iug7LKt7IScIOuwjyDrj5nsnZjshJw8L2gxPjxwPuuNlCDrgpjsnYAg7LGFIOy2lOyynCDshJzruYTsiqTrpbwg66eM65Ok6riwIOychO2VnCDtmITsnqUg642w7J207YSwIOyImOynkSDsobDsgqzsnoXri4jri6QuPGJyPuyVhOuemCDrgrTsmqnsnYQg7ZmV7J247ZWcIO2bhCDssLjsl6wg7KCV67O066W8IOyekeyEse2VtOyjvOyEuOyalC48L3A+PC9oZWFkZXI+Cjxmb3JtIGlkPSJmb3JtIj4KPHNlY3Rpb24gY2xhc3M9ImNhcmQiPjxkaXYgY2xhc3M9InN0ZXAiPjAxIMK3IFBBUlRJQ0lQQU5UPC9kaXY+PGgyPuywuOyXrOyekCDsoJXrs7Q8L2gyPjxwIGNsYXNzPSJkZXNjIj7sobDsgqwg7KeE7ZaJIOuwjyDsnbzsoJUg7JWI64K066W8IOychO2VtCDtlYTsmpTtlZwg6riw67O4IOygleuztOyeheuLiOuLpC48L3A+PGRpdiBjbGFzcz0iZ3JpZCI+CjxkaXYgY2xhc3M9ImZpZWxkIj48bGFiZWw+7J2066aEICo8L2xhYmVsPjxpbnB1dCBuYW1lPSJuYW1lIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0i7J2066aE7J2EIOyeheugpe2VtOyjvOyEuOyalCI+PC9kaXY+PGRpdiBjbGFzcz0iZmllbGQiPjxsYWJlbD7sl7Drnb3sspggKjwvbGFiZWw+PGlucHV0IG5hbWU9InBob25lIiByZXF1aXJlZCBpbnB1dG1vZGU9InRlbCIgcGxhY2Vob2xkZXI9IjAxMC0wMDAwLTAwMDAiPjwvZGl2Pgo8ZGl2IGNsYXNzPSJmaWVsZCI+PGxhYmVsPuyXsOugueuMgDwvbGFiZWw+PHNlbGVjdCBuYW1lPSJhZ2UiPjxvcHRpb24gdmFsdWU9IiI+7ISg7YOd7ZW07KO87IS47JqUPC9vcHRpb24+PG9wdGlvbj4xMOuMgDwvb3B0aW9uPjxvcHRpb24+MjDrjIA8L29wdGlvbj48b3B0aW9uPjMw64yAPC9vcHRpb24+PG9wdGlvbj40MOuMgDwvb3B0aW9uPjxvcHRpb24+NTDrjIAg7J207IOBPC9vcHRpb24+PC9zZWxlY3Q+PC9kaXY+PGRpdiBjbGFzcz0iZmllbGQiPjxsYWJlbD7sp4Hsl4UgLyDshozsho08L2xhYmVsPjxpbnB1dCBuYW1lPSJqb2IiIHBsYWNlaG9sZGVyPSLshKDtg50g7J6R7ISxIj48L2Rpdj48L2Rpdj48L3NlY3Rpb24+CjxzZWN0aW9uIGNsYXNzPSJjYXJkIj48ZGl2IGNsYXNzPSJzdGVwIj4wMiDCtyBSRUFESU5HPC9kaXY+PGgyPuuPheyEnCDqtIDroKgg7KCV67O0PC9oMj48cCBjbGFzcz0iZGVzYyI+7LGFIOy2lOyynCDrjbDsnbTthLAg67aE7ISd7J2EIOychO2VnCDqsITri6jtlZwg7IKs7KCEIOyniOusuOyeheuLiOuLpC48L3A+CjxkaXYgY2xhc3M9ImZpZWxkIj48bGFiZWw+7Y+J7IaMIOuPheyEnCDruYjrj4Q8L2xhYmVsPjxkaXYgY2xhc3M9ImNob2ljZXMiPjxsYWJlbCBjbGFzcz0iY2hvaWNlIj48aW5wdXQgdHlwZT0icmFkaW8iIG5hbWU9ImZyZXF1ZW5jeSIgdmFsdWU9IuqxsOydmCDsnb3sp4Ag7JWK7J2MIj7qsbDsnZgg7J297KeAIOyViuydjDwvbGFiZWw+PGxhYmVsIGNsYXNzPSJjaG9pY2UiPjxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZnJlcXVlbmN5IiB2YWx1ZT0i7JuUIDHqtowg66+466eMIj7sm5QgMeq2jCDrr7jrp4w8L2xhYmVsPjxsYWJlbCBjbGFzcz0iY2hvaWNlIj48aW5wdXQgdHlwZT0icmFkaW8iIG5hbWU9ImZyZXF1ZW5jeSIgdmFsdWU9IuyblCAxfjLqtowiPuyblCAxfjLqtow8L2xhYmVsPjxsYWJlbCBjbGFzcz0iY2hvaWNlIj48aW5wdXQgdHlwZT0icmFkaW8iIG5hbWU9ImZyZXF1ZW5jeSIgdmFsdWU9IuyblCAz6raMIOydtOyDgSI+7JuUIDPqtowg7J207IOBPC9sYWJlbD48L2Rpdj48L2Rpdj4KPGRpdiBjbGFzcz0iZmllbGQiPjxsYWJlbD7qtIDsi6wg7J6I64qUIOyxhSDrtoTslbw8L2xhYmVsPjxpbnB1dCBuYW1lPSJpbnRlcmVzdCIgcGxhY2Vob2xkZXI9IuyYiDog7IaM7ISkLCDsl5DshLjsnbQsIOyLrOumrCwg7J6Q6riw6rOE67CcIj48L2Rpdj48ZGl2IGNsYXNzPSJmaWVsZCI+PGxhYmVsPuyxheydhCDqs6Drpbwg65WMIOykkeyalO2VmOqyjCDsg53qsIHtlZjripQg7KCQPC9sYWJlbD48dGV4dGFyZWEgbmFtZT0iY3JpdGVyaWEiIHBsYWNlaG9sZGVyPSLsmIg6IOyerOuvuCwg7JyE66GcLCDsoJXrs7QsIOy2lOyynCDrpqzrt7Ag65OxIj48L3RleHRhcmVhPjwvZGl2Pjwvc2VjdGlvbj4KPHNlY3Rpb24gY2xhc3M9ImNhcmQiPjxkaXYgY2xhc3M9InN0ZXAiPjAzIMK3IFNDSEVEVUxFPC9kaXY+PGgyPu2YhOyepeyhsOyCrCA27ZqMIOydvOyglTwvaDI+PHAgY2xhc3M9ImRlc2MiPuy0nSA27ZqMIOynhO2WiSDsmIjsoJXsnoXri4jri6QuIOqwgOuKpe2VnCDrgqDsp5zsmYAg7Iuc6rCE7J2EIO2VnCDsubjsl5Ag7J6Q7Jyg66Gt6rKMIOyekeyEse2VtOyjvOyEuOyalC48L3A+PGRpdiBjbGFzcz0ic2NoZWR1bGUiPjxsYWJlbD7qsIDriqXtlZwg64Kg7KecIOuwjyDsi5zqsIQgKjwvbGFiZWw+PHRleHRhcmVhIG5hbWU9InNjaGVkdWxlIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0i7JiIKSDtj4nsnbwg7Jik7ZuEIDbsi5wg7J207ZuEIOqwgOuKpSAvIDnsm5QgMjDsnbwg7Jik7ZuEIDLsi5wsIDnsm5QgMjTsnbwg7Jik7ZuEIDXsi5wg6rCA64qlIOuTsSI+PC90ZXh0YXJlYT48L2Rpdj48ZGl2IGNsYXNzPSJub3RpY2UiPuKAuyDsnpHshLHtlbTso7zsi6Ag7Iuc6rCE7J2EIOuwlO2DleycvOuhnCDqsJzrs4Qg7Jew6529IO2bhCA27ZqMIOydvOygleydhCDsobDsnKjtlanri4jri6QuIOyekeyEse2VnCDsi5zqsITsnbQg7LWc7KKFIO2ZleyglSDsnbzsoJXsnYAg7JWE64uZ64uI64ukLjwvZGl2Pjwvc2VjdGlvbj4KPHNlY3Rpb24gY2xhc3M9ImNhcmQiPjxkaXYgY2xhc3M9InN0ZXAiPjA0IMK3IENPTlNFTlQ8L2Rpdj48aDI+6rCc7J247KCV67O0IOuwjyDsobDsgqwg642w7J207YSwIOyImOynkcK37J207JqpIOuPmeydmDwvaDI+PHAgY2xhc3M9ImRlc2MiPuyVhOuemCDrgrTsmqnsnYQg7ZmV7J247ZWcIO2bhCDrj5nsnZgg7Jes67aA66W8IOyytO2BrO2VtOyjvOyEuOyalC48L3A+CjxkaXYgY2xhc3M9ImNvbnNlbnQiPjxkaXYgY2xhc3M9ImNvbnNlbnQtdGl0bGUiPuqwnOyduOygleuztCDsiJjsp5Eg67CPIOydtOyaqTwvZGl2PjxwPjxiPuyImOynkSDtla3rqqk6PC9iPiDsnbTrpoQsIOyXsOudveyymCwg7Jew66C564yALCDsp4Hsl4Uv7IaM7IaNLCDssLjsl6wg6rCA64qlIOydvOyglTwvcD48cD48Yj7snbTsmqkg66qp7KCBOjwvYj4g7ZiE7J6l7KGw7IKsIOywuOyXrOyekCDtmZXsnbgsIOydvOyglSDsobDsnKgsIOyhsOyCrCDsp4Ttlokg67CPIOq0gOugqCDslYjrgrQ8L3A+PHA+PGI+67O07JygIOuwjyDtjIzquLA6PC9iPiDsiJjsp5HrkJwg6rCc7J247KCV67O0IOuwjyDsobDsgqwg642w7J207YSw64qUIDxiPuyhsOyCrCDsooXro4wg7ZuEIDPqsJzsm5TqsIQg67O06rSAIO2bhCDtjIzquLDtlanri4jri6QuPC9iPjwvcD48bGFiZWwgY2xhc3M9ImNoZWNrIj48aW5wdXQgdHlwZT0iY2hlY2tib3giIG5hbWU9InByaXZhY3lDb25zZW50IiB2YWx1ZT0i64+Z7J2YIiByZXF1aXJlZD7snIQg6rCc7J247KCV67O0IOyImOynkSDrsI8g7J207JqpIOuCtOyaqeydhCDtmZXsnbjtlZjsmIDsnLzrqbAg7J207JeQIOuPmeydmO2VqeuLiOuLpC48L2xhYmVsPjwvZGl2Pgo8ZGl2IGNsYXNzPSJjb25zZW50Ij48ZGl2IGNsYXNzPSJjb25zZW50LXRpdGxlIj7tmITsnqXsobDsgqwg642w7J207YSwIO2ZnOyaqTwvZGl2PjxwPuuPheyEnCDst6jtlqUsIOyEoO2DnSDqsrDqs7wsIO2UhOuhnOq3uOueqCDsgqzsmqkg7J2Y6rKsIOuwjyDtlLzrk5zrsLHsnYAgw5xiZXJtZW5zY2gg7LGFIOy2lOyynCDtlITroZzqt7jrnqjsnZgg7LaU7LKcIOygle2ZleuPhCDtlqXsg4Hqs7wg7ISc67mE7IqkIOqwnOyEoOydhCDsnITtlZwg67aE7ISdIOyekOujjOuhnCDtmZzsmqnrkKAg7IiYIOyeiOyKteuLiOuLpC48L3A+PGxhYmVsIGNsYXNzPSJjaGVjayI+PGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJkYXRhQ29uc2VudCIgdmFsdWU9IuuPmeydmCIgcmVxdWlyZWQ+7JyEIOyhsOyCrCDrjbDsnbTthLAg7IiY7KeRIOuwjyDtmZzsmqkg64K07Jqp7J2EIO2ZleyduO2VmOyYgOycvOupsCDsnbTsl5Ag64+Z7J2Y7ZWp64uI64ukLjwvbGFiZWw+PC9kaXY+CjxkaXYgY2xhc3M9ImNvbnNlbnQiPjxkaXYgY2xhc3M9ImNvbnNlbnQtdGl0bGUiPu2YhOyepeyhsOyCrCDssLjsl6wg7ZmV7J24PC9kaXY+PHA+67O47J247J2AIOyhsOyCrCDrqqnsoIHqs7wg7KeE7ZaJIOuCtOyaqeydhCDtmZXsnbjtlZjsmIDsnLzrqbAsIOy0nSA27ZqM7J2YIO2YhOyepeyhsOyCrOyXkCDssLjsl6ztlZjripQg6rKD7JeQIOuPmeydmO2VqeuLiOuLpC48L3A+PGxhYmVsIGNsYXNzPSJjaGVjayI+PGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJwYXJ0aWNpcGF0aW9uQ29uc2VudCIgdmFsdWU9IuuPmeydmCIgcmVxdWlyZWQ+7ZiE7J6l7KGw7IKsIOywuOyXrOyXkCDrj5nsnZjtlanri4jri6QuPC9sYWJlbD48L2Rpdj48L3NlY3Rpb24+CjxzZWN0aW9uIGNsYXNzPSJjYXJkIj48ZGl2IGNsYXNzPSJzdGVwIj4wNSDCtyBDT05GSVJNQVRJT048L2Rpdj48aDI+7LC47JesIOuPmeydmCDtmZXsnbg8L2gyPjxwIGNsYXNzPSJkZXNjIj7snIQg64K07Jqp7J2EIOuqqOuRkCDtmZXsnbjtlZjshajri6TrqbQg7LC47Jes7J6QIOydtOumhOydhCDsnpHshLHtlbTso7zshLjsmpQuPC9wPjxkaXYgY2xhc3M9InNpZ25hdHVyZSI+PGxhYmVsPuywuOyXrOyekCDsnbTrpoQgKjwvbGFiZWw+PGlucHV0IG5hbWU9ImNvbmZpcm1OYW1lIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0i7J2066aE7J2EIOyeheugpe2VtOyjvOyEuOyalCI+PC9kaXY+PGJ1dHRvbiBjbGFzcz0ic3VibWl0IiB0eXBlPSJzdWJtaXQiPuyLoOyyrSDrsI8g64+Z7J2YIOyZhOujjDwvYnV0dG9uPjxkaXYgY2xhc3M9InN1Y2Nlc3MiIGlkPSJzdWNjZXNzIj7si6Dssq0g64K07Jqp7J20IO2ZleyduOuQmOyXiOyKteuLiOuLpC4g6rCQ7IKs7ZWp64uI64ukLjwvZGl2Pjwvc2VjdGlvbj4KPC9mb3JtPjxkaXYgY2xhc3M9ImZvb3RlciI+w5xiZXJtZW5zY2ggwrcgQm9vayBSZWNvbW1lbmRhdGlvbiBSZXNlYXJjaDwvZGl2PjwvZGl2Pgo8c2NyaXB0Pgpjb25zdCBmb3JtPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdmb3JtJyk7CmZvcm0uYWRkRXZlbnRMaXN0ZW5lcignc3VibWl0JyxlPT57CiAgZS5wcmV2ZW50RGVmYXVsdCgpOwogIGNvbnN0IG49Zm9ybS5lbGVtZW50cy5uYW1lLnZhbHVlLnRyaW0oKSwgYz1mb3JtLmVsZW1lbnRzLmNvbmZpcm1OYW1lLnZhbHVlLnRyaW0oKTsKICBpZihuIT09Yyl7YWxlcnQoJ+ywuOyXrOyekCDsoJXrs7TsnZgg7J2066aE6rO8IOuPmeydmCDtmZXsnbgg7J2066aE7J20IOuPmeydvO2VnOyngCDtmZXsnbjtlbTso7zshLjsmpQuJyk7cmV0dXJuO30KICBjb25zdCBmZD1uZXcgRm9ybURhdGEoZm9ybSk7CiAgY29uc3QgZD1PYmplY3QuZnJvbUVudHJpZXMoZmQuZW50cmllcygpKTsKICBsZXQgYT1bXTsKICB0cnl7YT1KU09OLnBhcnNlKGxvY2FsU3RvcmFnZS5nZXRJdGVtKCd1YmVybWVuc2NoQXBwbGljYXRpb25zJyl8fCdbXScpfWNhdGNoKGVycil7YT1bXTt9CiAgY29uc3QgaXRlbT17CiAgICBpZDonVUItJytEYXRlLm5vdygpLAogICAgbmFtZTpkLm5hbWV8fCcnLAogICAgcGhvbmU6ZC5waG9uZXx8JycsCiAgICBhZ2U6ZC5hZ2V8fCcnLAogICAgam9iOmQuam9ifHwnJywKICAgIGZyZXF1ZW5jeTpkLmZyZXF1ZW5jeXx8JycsCiAgICBpbnRlcmVzdDpkLmludGVyZXN0fHwnJywKICAgIGNyaXRlcmlhOmQuY3JpdGVyaWF8fCcnLAogICAgc2NoZWR1bGU6ZC5zY2hlZHVsZXx8JycsCiAgICBwcml2YWN5Q29uc2VudDpkLnByaXZhY3lDb25zZW50fHwnJywKICAgIGRhdGFDb25zZW50OmQuZGF0YUNvbnNlbnR8fCcnLAogICAgcGFydGljaXBhdGlvbkNvbnNlbnQ6ZC5wYXJ0aWNpcGF0aW9uQ29uc2VudHx8JycsCiAgICBjb25maXJtTmFtZTpkLmNvbmZpcm1OYW1lfHwnJywKICAgIHN0YXR1czon7Iug6recJywKICAgIGFkbWluTWVtbzonJywKICAgIHN1Ym1pdHRlZEF0Om5ldyBEYXRlKCkudG9JU09TdHJpbmcoKQogIH07CiAgYS5wdXNoKGl0ZW0pOwogIHRyeXtsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgndWJlcm1lbnNjaEFwcGxpY2F0aW9ucycsSlNPTi5zdHJpbmdpZnkoYSkpO31jYXRjaChlcnIpewogICAgdHJ5e3dpbmRvdy5wYXJlbnQucG9zdE1lc3NhZ2Uoe3R5cGU6J3ViZXJtZW5zY2hBcHBsaWNhdGlvbicsaXRlbX0sJyonKTt9Y2F0Y2goZSl7fQogIH0KICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnc3VjY2VzcycpLnN0eWxlLmRpc3BsYXk9J2Jsb2NrJzsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnc3VjY2VzcycpLnRleHRDb250ZW50PSfsi6Dssq3snbQg7KCA7J6l65CY7JeI7Iq164uI64ukLiDqsJDsgqztlanri4jri6QuJzsKICBmb3JtLnF1ZXJ5U2VsZWN0b3IoJy5zdWJtaXQnKS5kaXNhYmxlZD10cnVlOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdzdWNjZXNzJykuc2Nyb2xsSW50b1ZpZXcoe2JlaGF2aW9yOidzbW9vdGgnfSk7Cn0pOwo8L3NjcmlwdD48L2JvZHk+PC9odG1sPg==" style="position:fixed;inset:0;width:100%;height:100%;border:0;background:#f4f6f3"></iframe>`;
+    //   window.scrollTo(0, 0);
+
+    //   window.addEventListener('message', handleSubmissionComplete);
+
+    // }
     document.addEventListener('DOMContentLoaded', function() {
       home();
     });
-
-    // 이전 아바타 화면으로 복구하는 함수
-    function restoreOriginalScreen() {
-      if (originalBodyContent) {
-        document.body.innerHTML = originalBodyContent; // 백업해둔 기존 화면으로 복원
-        window.scrollTo(0, 0);
-      }
-    }
-
-    function handleSubmissionComplete(event) {
-      // 신청서 제출 완료 신호가 들어오면 기존 화면으로 되돌림
-      if (event.data && event.data.type === 'app_submitted') {
-        alert('신청이 완료되었습니다! 이전 화면으로 돌아갑니다.');
-        restoreOriginalScreen();
-        window.removeEventListener('message', handleSubmissionComplete);
-      }
-    }
 
     window.handleLogout = function () {
         // 1. 유저 권한 및 진행 단계 세션만 삭제 (신청자 DB 데이터는 유지!)
