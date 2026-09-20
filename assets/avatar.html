@@ -456,220 +456,249 @@
       app.innerHTML = `<div class="card result"><span class="tag">MY EGO AVATAR · 1 / 16</span><div class="avatar"><img src="${avatarImageMap[key]}" alt="${r.name} 캐릭터"></div><div class="name">${r.name}</div><div class="catch">${r.catch}</div><div class="item">대표 아이템 · ${r.item}</div><div class="stats">${(() => { const t = calcTraits(); return statRow('표현력', t.expression) + statRow('방어력', t.defense) + statRow('독립성', t.independence) + statRow('계획성', t.planning) + statRow('공감성', t.empathy) + statRow('유연성', t.flexibility) })()}</div><div class="desc"><b>${r.name}의 특성</b><br><br>${r.tags.map(x => '• ' + x).join('<br>')}<br><br><b>당신을 이루는 네 방향</b><br>${expression} · ${energy}<br>${direction} · ${structure}</div><div class="bookrec"><span class="bookbadge">📚 당신의 아바타가 고른 3권</span><h3>이 캐릭터에게 추천하는 책 3권</h3>${bookData[key].map((b, n) => `<div style="background:#fff;border-radius:16px;padding:15px;margin-top:12px"><div style="font-size:12px;font-weight:900;color:#8a6bd2">BOOK ${n + 1}</div><div class="booktitle">『${b.title}』</div><div class="bookauthor">${b.author}</div><div class="bookwhy">${b.why}</div></div>`).join('')}</div><button class="retry" onclick="showApplication()">현장조사 신청하기</button></div>`
     }
 
-    // HTML 문자열 변수 (전과 동일)
-    const formHtmlContent = `<!doctype html>
-    <html lang="ko">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Übermensch 현장조사 신청서</title>
-      <style>
-        * { box-sizing: border-box; }
-        :root {
-          --g: #173f32; --g2: #245746; --soft: #edf3ef;
-          --bg: #f4f6f3; --ink: #1d2924; --muted: #6e7973; --line: #dce4df;
-        }
-        body { margin: 0; background: var(--bg); font-family: system-ui, -apple-system, "Noto Sans KR", sans-serif; color: var(--ink); }
-        .wrap { max-width: 760px; margin: auto; padding: 28px 16px 60px; }
-        header { background: linear-gradient(135deg, #153d31, #204c3d); color: white; border-radius: 24px; padding: 34px 32px; box-shadow: 0 15px 35px #173f3220; }
-        .brand { font-weight: 900; color: #c9dcd3; }
-        header h1 { font-size: 30px; margin: 8px 0 10px; }
-        header p { margin: 0; color: #d4e0da; font-size: 14px; line-height: 1.65; }
-        .card { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 26px; margin-top: 16px; box-shadow: 0 8px 25px #173f3209; }
-        .step { font-size: 11px; font-weight: 900; color: var(--g2); letter-spacing: .08em; margin-bottom: 7px; }
-        h2 { font-size: 21px; margin: 0 0 5px; }
-        .desc { font-size: 13px; color: var(--muted); line-height: 1.55; margin: 0 0 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .field { margin-bottom: 15px; }
-        label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 7px; }
-        input, textarea, select { width: 100%; border: 1px solid #d9e0dc; background: #fff; border-radius: 11px; padding: 13px; font: inherit; color: var(--ink); outline: none; }
-        input:focus, textarea:focus, select:focus { border-color: #668b7c; box-shadow: 0 0 0 3px #e6efea; }
-        textarea { min-height: 96px; resize: vertical; }
-        .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-        .choice, .check { display: flex; gap: 9px; align-items: flex-start; border: 1px solid var(--line); border-radius: 11px; padding: 12px; font-size: 13px; line-height: 1.5; }
-        .choice input, .check input { width: auto; accent-color: var(--g); margin-top: 2px; }
-        .schedule, .signature { background: var(--soft); border-radius: 14px; padding: 16px; }
-        .schedule textarea { min-height: 115px; }
-        .notice { background: #f7f9f7; border-left: 4px solid var(--g); border-radius: 9px; padding: 14px 15px; font-size: 12.5px; line-height: 1.7; color: #56615c; margin: 14px 0; }
-        .consent { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; }
-        .consent-title { font-weight: 900; font-size: 14px; margin-bottom: 8px; }
-        .consent p { font-size: 12.5px; color: #5f6b65; line-height: 1.7; margin: 0 0 10px; }
-        .check { background: #f8faf8; margin-top: 8px; }
-        .submit { width: 100%; margin-top: 18px; border: 0; border-radius: 13px; padding: 16px; background: var(--g); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; }
-        .success { display: none; margin-top: 15px; padding: 15px; background: #e7f1eb; border: 1px solid #cfe0d6; color: #285241; font-size: 13px; text-align: center; font-weight: 800; border-radius: 10px; }
-        .footer { text-align: center; color: #8a938e; font-size: 11px; margin-top: 20px; }
-        @media(max-width: 620px) {
-          header { padding: 28px 22px; }
-          header h1 { font-size: 26px; }
-          .card { padding: 22px 18px; }
-          .grid, .choices { grid-template-columns: 1fr; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="wrap">
-        <header>
-          <div class="brand">Übermensch</div>
-          <h1>현장조사 참여 신청서 및 동의서</h1>
-          <p>더 나은 서책 추천 서비스를 만들기 위해 리서치 데이터를 수집하고자 합니다.<br>아래 내용을 확인한 후 참여 정보를 작성해 주세요.</p>
-        </header>
-        <form id="form">
-          <section class="card">
-            <div class="step">01 · PARTICIPANT</div>
-            <h2>참여자 정보</h2>
-            <p class="desc">조사 진행 및 일정 안내를 위해 필요한 기본 정보입니다.</p>
-            <div class="grid">
-              <div class="field"><label>이름 *</label><input name="name" required placeholder="이름을 입력해 주세요"></div>
-              <div class="field"><label>연락처 *</label><input name="phone" required inputmode="tel" placeholder="010-0000-0000"></div>
-              <div class="field"><label>연령대</label>
-                <select name="age">
-                  <option value="">선택해 주세요</option>
-                  <option>10대</option><option>20대</option><option>30대</option><option>40대</option><option>50대 이상</option>
-                </select>
-              </div>
-              <div class="field"><label>직업 / 소속</label><input name="job" placeholder="선택 작성"></div>
-            </div>
-          </section>
+    // ==========================================
+// 1. 현장조사 신청서 HTML 템플릿 생성 함수
+// ==========================================
+function getApplicationHtmlContent() {
+  return `<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Übermensch 현장조사 신청서</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --g: #173f32; --g2: #245746; --soft: #edf3ef;
+      --bg: #f4f6f3; --ink: #1d2924; --muted: #6e7973; --line: #dce4df;
+    }
+    body { margin: 0; background: var(--bg); font-family: system-ui, -apple-system, "Noto Sans KR", sans-serif; color: var(--ink); }
+    .wrap { max-width: 760px; margin: auto; padding: 28px 16px 60px; }
+    header { background: linear-gradient(135deg, #153d31, #204c3d); color: white; border-radius: 24px; padding: 34px 32px; box-shadow: 0 15px 35px #173f3220; }
+    .brand { font-weight: 900; color: #c9dcd3; }
+    header h1 { font-size: 30px; margin: 8px 0 10px; }
+    header p { margin: 0; color: #d4e0da; font-size: 14px; line-height: 1.65; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 26px; margin-top: 16px; box-shadow: 0 8px 25px #173f3209; }
+    .step { font-size: 11px; font-weight: 900; color: var(--g2); letter-spacing: .08em; margin-bottom: 7px; }
+    h2 { font-size: 21px; margin: 0 0 5px; }
+    .desc { font-size: 13px; color: var(--muted); line-height: 1.55; margin: 0 0 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .field { margin-bottom: 15px; }
+    label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 7px; }
+    input, textarea, select { width: 100%; border: 1px solid #d9e0dc; background: #fff; border-radius: 11px; padding: 13px; font: inherit; color: var(--ink); outline: none; }
+    input:focus, textarea:focus, select:focus { border-color: #668b7c; box-shadow: 0 0 0 3px #e6efea; }
+    textarea { min-height: 96px; resize: vertical; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .choice, .check { display: flex; gap: 9px; align-items: flex-start; border: 1px solid var(--line); border-radius: 11px; padding: 12px; font-size: 13px; line-height: 1.5; }
+    .choice input, .check input { width: auto; accent-color: var(--g); margin-top: 2px; }
+    .schedule, .signature { background: var(--soft); border-radius: 14px; padding: 16px; }
+    .schedule textarea { min-height: 115px; }
+    .notice { background: #f7f9f7; border-left: 4px solid var(--g); border-radius: 9px; padding: 14px 15px; font-size: 12.5px; line-height: 1.7; color: #56615c; margin: 14px 0; }
+    .consent { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; }
+    .consent-title { font-weight: 900; font-size: 14px; margin-bottom: 8px; }
+    .consent p { font-size: 12.5px; color: #5f6b65; line-height: 1.7; margin: 0 0 10px; }
+    .check { background: #f8faf8; margin-top: 8px; }
+    .submit { width: 100%; margin-top: 18px; border: 0; border-radius: 13px; padding: 16px; background: var(--g); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; }
+    .success { display: none; margin-top: 15px; padding: 15px; background: #e7f1eb; border: 1px solid #cfe0d6; color: #285241; font-size: 13px; text-align: center; font-weight: 800; border-radius: 10px; }
+    .footer { text-align: center; color: #8a938e; font-size: 11px; margin-top: 20px; }
+    @media(max-width: 620px) {
+      header { padding: 28px 22px; }
+      header h1 { font-size: 26px; }
+      .card { padding: 22px 18px; }
+      .grid, .choices { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">Übermensch</div>
+      <h1>현장조사 참여 신청서 및 동의서</h1>
+      <p>더 나은 서책 추천 서비스를 만들기 위해 리서치 데이터를 수집하고자 합니다.<br>아래 내용을 확인한 후 참여 정보를 작성해 주세요.</p>
+    </header>
+    <form id="form">
+      <section class="card">
+        <div class="step">01 · PARTICIPANT</div>
+        <h2>참여자 정보</h2>
+        <p class="desc">조사 진행 및 일정 안내를 위해 필요한 기본 정보입니다.</p>
+        <div class="grid">
+          <div class="field"><label>이름 *</label><input name="name" required placeholder="이름을 입력해 주세요"></div>
+          <div class="field"><label>연락처 *</label><input name="phone" required inputmode="tel" placeholder="010-0000-0000"></div>
+          <div class="field"><label>연령대</label>
+            <select name="age">
+              <option value="">선택해 주세요</option>
+              <option>10대</option><option>20대</option><option>30대</option><option>40대</option><option>50대 이상</option>
+            </select>
+          </div>
+          <div class="field"><label>직업 / 소속</label><input name="job" placeholder="선택 작성"></div>
+        </div>
+      </section>
 
-          <section class="card">
-            <div class="step">02 · READING</div>
-            <h2>독서 관련 정보</h2>
-            <p class="desc">서책 추천 데이터 분석을 위한 간단한 사전 질문입니다.</p>
-            <div class="field"><label>평소 독서 빈도</label>
-              <div class="choices">
-                <label class="choice"><input type="radio" name="frequency" value="거의 읽지 않음">거의 읽지 않음</label>
-                <label class="choice"><input type="radio" name="frequency" value="월 1권 미만">월 1권 미만</label>
-                <label class="choice"><input type="radio" name="frequency" value="월 1~2권">월 1~2권</label>
-                <label class="choice"><input type="radio" name="frequency" value="월 3권 이상">월 3권 이상</label>
-              </div>
-            </div>
-            <div class="field"><label>관심 있는 서책 분야</label><input name="interest" placeholder="예: 소설, 에세이, 심리, 자기계발"></div>
-            <div class="field"><label>책을 고를 때 중요하게 생각하는 점</label><textarea name="criteria" placeholder="예: 제목, 표지, 정보, 추천 리뷰 등"></textarea></div>
-          </section>
+      <section class="card">
+        <div class="step">02 · READING</div>
+        <h2>독서 관련 정보</h2>
+        <p class="desc">서책 추천 데이터 분석을 위한 간단한 사전 질문입니다.</p>
+        <div class="field"><label>평소 독서 빈도</label>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="frequency" value="거의 읽지 않음">거의 읽지 않음</label>
+            <label class="choice"><input type="radio" name="frequency" value="월 1권 미만">월 1권 미만</label>
+            <label class="choice"><input type="radio" name="frequency" value="월 1~2권">월 1~2권</label>
+            <label class="choice"><input type="radio" name="frequency" value="월 3권 이상">월 3권 이상</label>
+          </div>
+        </div>
+        <div class="field"><label>관심 있는 서책 분야</label><input name="interest" placeholder="예: 소설, 에세이, 심리, 자기계발"></div>
+        <div class="field"><label>책을 고를 때 중요하게 생각하는 점</label><textarea name="criteria" placeholder="예: 제목, 표지, 정보, 추천 리뷰 등"></textarea></div>
+      </section>
 
-          <section class="card">
-            <div class="step">03 · SCHEDULE</div>
-            <h2>현장조사 희망 일정</h2>
-            <p class="desc">현장 조사는 일정 협의 후 진행됩니다. 가능한 날짜와 시간을 작성해 주세요.</p>
-            <div class="schedule"><label>가능한 날짜 및 시간 *</label><textarea name="schedule" required placeholder="예) 평일 오후 6시 이후 가능 / 9월 20일 오후 2시 가능 등"></textarea></div>
-            <div class="notice">※ 작성해 주신 시간을 바탕으로 일정을 조정합니다. 작성한 시간이 최종 확정 일정은 아닙니다.</div>
-          </section>
+      <section class="card">
+        <div class="step">03 · SCHEDULE</div>
+        <h2>현장조사 희망 일정</h2>
+        <p class="desc">현장 조사는 일정 협의 후 진행됩니다. 가능한 날짜와 시간을 작성해 주세요.</p>
+        <div class="schedule"><label>가능한 날짜 및 시간 *</label><textarea name="schedule" required placeholder="예) 평일 오후 6시 이후 가능 / 9월 20일 오후 2시 가능 등"></textarea></div>
+        <div class="notice">※ 작성해 주신 시간을 바탕으로 일정을 조정합니다. 작성한 시간이 최종 확정 일정은 아닙니다.</div>
+      </section>
 
-          <section class="card">
-            <div class="step">04 · CONSENT</div>
-            <h2>개인정보 및 조사 데이터 수집·이용 동의</h2>
-            <p class="desc">아래 내용을 확인한 후 동의 여부를 체크해 주세요.</p>
-            <div class="consent">
-              <div class="consent-title">개인정보 수집 및 이용</div>
-              <p><b>수집 항목:</b> 이름, 연락처, 연령대, 직업/소속, 참여 가능 일정</p>
-              <p><b>이용 목적:</b> 현장조사 참여자 확인, 일정 조정, 조사 진행 및 관련 안내</p>
-              <p><b>보유 및 파기:</b> 수집된 개인정보 및 조사 데이터는 <b>조사 종료 후 3개월간 보관 후 파기됩니다.</b></p>
-              <label class="check"><input type="checkbox" name="privacyConsent" value="동의" required>위 개인정보 수집 및 이용 내용을 확인하였으며 이에 동의합니다.</label>
-            </div>
-            <div class="consent">
-              <div class="consent-title">현장조사 데이터 활용</div>
-              <p>독서 취향, 설문 결과, 프로필 활용 의견 및 피드백은 Übermensch 서책 추천 프로필의 추천 정확도 향상과 서비스 개선을 위해 분석 자료로 활용될 수 있습니다.</p>
-              <label class="check"><input type="checkbox" name="dataConsent" value="동의" required>위 조사 데이터 수집 및 활용 내용을 확인하였으며 이에 동의합니다.</label>
-            </div>
-            <div class="consent">
-              <div class="consent-title">현장조사 참여 확인</div>
-              <p>본인은 조사 목적과 진행 내용을 확인하였으며, 현장조사에 참여하는 것에 동의합니다.</p>
-              <label class="check"><input type="checkbox" name="participationConsent" value="동의" required>현장조사 참여에 동의합니다.</label>
-            </div>
-          </section>
+      <section class="card">
+        <div class="step">04 · CONSENT</div>
+        <h2>개인정보 및 조사 데이터 수집·이용 동의</h2>
+        <p class="desc">아래 내용을 확인한 후 동의 여부를 체크해 주세요.</p>
+        <div class="consent">
+          <div class="consent-title">개인정보 수집 및 이용</div>
+          <p><b>수집 항목:</b> 이름, 연락처, 연령대, 직업/소속, 참여 가능 일정</p>
+          <p><b>이용 목적:</b> 현장조사 참여자 확인, 일정 조정, 조사 진행 및 관련 안내</p>
+          <p><b>보유 및 파기:</b> 수집된 개인정보 및 조사 데이터는 <b>조사 종료 후 3개월간 보관 후 파기됩니다.</b></p>
+          <label class="check"><input type="checkbox" name="privacyConsent" value="동의" required>위 개인정보 수집 및 이용 내용을 확인하였으며 이에 동의합니다.</label>
+        </div>
+        <div class="consent">
+          <div class="consent-title">현장조사 데이터 활용</div>
+          <p>독서 취향, 설문 결과, 프로필 활용 의견 및 피드백은 Übermensch 서책 추천 프로필의 추천 정확도 향상과 서비스 개선을 위해 분석 자료로 활용될 수 있습니다.</p>
+          <label class="check"><input type="checkbox" name="dataConsent" value="동의" required>위 조사 데이터 수집 및 활용 내용을 확인하였으며 이에 동의합니다.</label>
+        </div>
+        <div class="consent">
+          <div class="consent-title">현장조사 참여 확인</div>
+          <p>본인은 조사 목적과 진행 내용을 확인하였으며, 현장조사에 참여하는 것에 동의합니다.</p>
+          <label class="check"><input type="checkbox" name="participationConsent" value="동의" required>현장조사 참여에 동의합니다.</label>
+        </div>
+      </section>
 
-          <section class="card">
-            <div class="step">05 · CONFIRMATION</div>
-            <h2>참여 동의 확인</h2>
-            <p class="desc">위 내용을 모두 확인하였으며 참여자 이름을 작성해 주세요.</p>
-            <div class="signature"><label>참여자 이름 *</label><input name="confirmName" required placeholder="이름을 입력해 주세요"></div>
-            <button class="submit" type="submit">신청 및 데이터 입력</button>
-            <div class="success" id="success"></div>
-          </section>
-        </form>
-        <div class="footer">Übermensch · Book Recommendation Research</div>
-      </div>
+      <section class="card">
+        <div class="step">05 · CONFIRMATION</div>
+        <h2>참여 동의 확인</h2>
+        <p class="desc">위 내용을 모두 확인하였으며 참여자 이름을 작성해 주세요.</p>
+        <div class="signature"><label>참여자 이름 *</label><input name="confirmName" required placeholder="이름을 입력해 주세요"></div>
+        <button class="submit" type="submit">신청 및 데이터 입력</button>
+        <div class="success" id="success"></div>
+      </section>
+    </form>
+    <div class="footer">Übermensch · Book Recommendation Research</div>
+  </div>
 
-      <script>
-        const form = document.getElementById('form');
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const n = form.elements.name.value.trim();
-          const c = form.elements.confirmName.value.trim();
-          if (n !== c) {
-            alert('참여자 이름과 동의 이름이 일치하지 않습니다.');
-            return;
-          }
-          const fd = new FormData(form);
-          const d = Object.fromEntries(fd.entries());
-          let a = [];
-          try { a = JSON.parse(localStorage.getItem('ubermenschApplications') || '[]'); } catch(err) { a = []; }
-          
-          const item = {
-            id: 'UB-' + Date.now(),
-            name: d.name || '',
-            phone: d.phone || '',
-            age: d.age || '',
-            job: d.job || '',
-            frequency: d.frequency || '',
-            interest: d.interest || '',
-            criteria: d.criteria || '',
-            schedule: d.schedule || '',
-            privacyConsent: d.privacyConsent || '',
-            dataConsent: d.dataConsent || '',
-            participationConsent: d.participationConsent || '',
-            confirmName: d.confirmName || '',
-            status: '신규',
-            adminMemo: '',
-            submittedAt: new Date().toISOString()
-          };
-          a.push(item);
-          try { localStorage.setItem('ubermenschApplications', JSON.stringify(a)); } catch(err) {}
-          
-          document.getElementById('success').style.display = 'block';
-          document.getElementById('success').textContent = '신청이 저장되었습니다. 잠시 후 이전 화면으로 돌아갑니다.';
-          form.querySelector('.submit').disabled = true;
-
-          // 제출 후 1.5초 뒤에 부모 창(avatar.html)으로 돌아가기 신호 전송
-          setTimeout(() => {
-            window.parent.postMessage({ type: 'app_submitted' }, '*');
-          }, 1500);
-        });
-      <\/script>
-    </body>
-    </html>`;
-
-    // 1. 신청서 화면으로 전환 (아바타 숨김, 신청서 보임)
-    function showApplication() {
-      const appIframe = document.getElementById('appIframe');
+  <script>
+    const form = document.getElementById('form');
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const n = form.elements.name.value.trim();
+      const c = form.elements.confirmName.value.trim();
+      if (n !== c) {
+        alert('참여자 이름과 동의 이름이 일치하지 않습니다.');
+        return;
+      }
+      const fd = new FormData(form);
+      const d = Object.fromEntries(fd.entries());
+      let a = [];
+      try { a = JSON.parse(localStorage.getItem('ubermenschApplications') || '[]'); } catch(err) { a = []; }
       
-      // iframe 내용이 비어있을 때만 HTML 삽입
-      if (!appIframe.srcdoc) {
-        appIframe.srcdoc = formHtmlContent;
-      }
+      const item = {
+        id: 'UB-' + Date.now(),
+        name: d.name || '',
+        phone: d.phone || '',
+        age: d.age || '',
+        job: d.job || '',
+        frequency: d.frequency || '',
+        interest: d.interest || '',
+        criteria: d.criteria || '',
+        schedule: d.schedule || '',
+        privacyConsent: d.privacyConsent || '',
+        dataConsent: d.dataConsent || '',
+        participationConsent: d.participationConsent || '',
+        confirmName: d.confirmName || '',
+        status: '신규',
+        adminMemo: '',
+        submittedAt: new Date().toISOString()
+      };
+      a.push(item);
+      try { localStorage.setItem('ubermenschApplications', JSON.stringify(a)); } catch(err) {}
+      
+      document.getElementById('success').style.display = 'block';
+      document.getElementById('success').textContent = '신청이 저장되었습니다. 잠시 후 이전 화면으로 돌아갑니다.';
+      form.querySelector('.submit').disabled = true;
 
-      document.getElementById('avatarContainer').style.display = 'none';
-      document.getElementById('appLayer').style.display = 'block';
-      window.scrollTo(0, 0);
+      // 부모 JS 화면으로 복귀 신호 전송
+      setTimeout(() => {
+        window.parent.postMessage({ type: 'app_submitted' }, '*');
+      }, 1500);
+    });
+  <\/script>
+</body>
+</html>`;
+}
 
-      // 제출 완료 이벤트 감지 등록
-      window.addEventListener('message', handleSubmissionComplete);
+
+// ==========================================
+// 2. 신청서 레이어 생성 및 제어 함수 (JS 전용)
+// ==========================================
+
+// 신청서 화면 열기 버튼 클릭 시 실행할 함수
+function showApplication() {
+  let appLayer = document.getElementById('appLayer');
+
+  // 레이어가 DOM에 없으면 동적으로 생성
+  if (!appLayer) {
+    appLayer = document.createElement('div');
+    appLayer.id = 'appLayer';
+    appLayer.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:999999; background:#f4f6f3;';
+
+    // 상단 돌아가기 바 + iframe 세팅
+    appLayer.innerHTML = `
+      <div style="position:fixed; top:0; left:0; right:0; height:50px; background:#173f32; display:flex; align-items:center; padding:0 16px; z-index:1000000; box-shadow:0 2px 10px rgba(0,0,0,0.2);">
+        <button type="button" onclick="hideApplication()" style="background:#ffffff; color:#173f32; border:none; padding:8px 16px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">
+          ← 아바타로 돌아가기
+        </button>
+      </div>
+      <iframe id="appIframe" title="Übermensch 현장조사 신청서" style="position:fixed; top:50px; left:0; right:0; bottom:0; width:100%; height:calc(100% - 50px); border:0; background:#f4f6f3"></iframe>
+    `;
+
+    document.body.appendChild(appLayer);
+
+    // iframe 할당
+    const appIframe = document.getElementById('appIframe');
+    if (appIframe) {
+      appIframe.srcdoc = getApplicationHtmlContent();
     }
+  }
 
-    // 2. 다시 아바타 화면으로 복구 (신청서 숨김, 아바타 보임)
-    function hideApplication() {
-      document.getElementById('appLayer').style.display = 'none';
-      document.getElementById('avatarContainer').style.display = 'block';
-      window.scrollTo(0, 0);
-    }
+  // 레이어 보이기
+  appLayer.style.display = 'block';
 
-    // 3. 제출 완료 시 자동 전환
-    function handleSubmissionComplete(event) {
-      if (event.data && event.data.type === 'app_submitted') {
-        hideApplication();
-        window.removeEventListener('message', handleSubmissionComplete);
-      }
-    } 
+  // 제출 완료 이벤트 감지 리스너 등록
+  window.addEventListener('message', handleSubmissionComplete);
+}
+
+// 신청서 숨기고 기존 JS 아바타 화면으로 복귀
+function hideApplication() {
+  const appLayer = document.getElementById('appLayer');
+  if (appLayer) {
+    appLayer.style.display = 'none';
+  }
+}
+
+// 제출 완료 시 자동 복귀 처리
+function handleSubmissionComplete(event) {
+  if (event.data && event.data.type === 'app_submitted') {
+    hideApplication();
+    window.removeEventListener('message', handleSubmissionComplete);
+  }
+}
 
     // let originalBodyContent = ''; // 원래 화면을 저장할 변수
 
