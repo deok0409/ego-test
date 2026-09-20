@@ -660,11 +660,6 @@ function showApplication() {
 
     // 상단 돌아가기 바 + iframe 세팅
     appLayer.innerHTML = `
-      <div style="position:fixed; top:0; left:0; right:0; height:50px; background:#173f32; display:flex; align-items:center; padding:0 16px; z-index:1000000; box-shadow:0 2px 10px rgba(0,0,0,0.2);">
-        <button type="button" onclick="hideApplication()" style="background:#ffffff; color:#173f32; border:none; padding:8px 16px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">
-          ← 아바타로 돌아가기
-        </button>
-      </div>
       <iframe id="appIframe" title="Übermensch 현장조사 신청서" style="position:fixed; top:50px; left:0; right:0; bottom:0; width:100%; height:calc(100% - 50px); border:0; background:#f4f6f3"></iframe>
     `;
 
@@ -689,6 +684,18 @@ function hideApplication() {
   const appLayer = document.getElementById('appLayer');
   if (appLayer) {
     appLayer.style.display = 'none';
+
+    const appIframe = document.getElementById('appIframe');
+    if (appIframe && appIframe.contentWindow) {
+      const form = appIframe.contentWindow.document.getElementById('form');
+      const successMsg = appIframe.contentWindow.document.getElementById('success');
+      const submitBtn = appIframe.contentWindow.document.querySelector('.submit');
+      
+      if (form) form.reset();
+      if (successMsg) successMsg.style.display = 'none';
+      if (submitBtn) submitBtn.disabled = false;
+    }
+    home();
   }
 }
 
